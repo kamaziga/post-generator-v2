@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import Rekvizity from './Rekvizity'
+import Offer from './Offer'
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || ''
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
@@ -29,7 +32,7 @@ const STYLES = {
   поэтичный: { label: 'Поэтичный', prompt: 'Пост должен быть поэтичным, образным...' },
 }
 
-export default function App() {
+function MainApp() {
   // ===== СОСТОЯНИЯ =====
   const [topic, setTopic] = useState('')
   const [instructions, setInstructions] = useState('')
@@ -73,14 +76,10 @@ export default function App() {
   const [planLoading, setPlanLoading] = useState(false)
   const [planResults, setPlanResults] = useState([])
 
-  // Загрузка контент-плана из localStorage
   useEffect(() => {
     const saved = localStorage.getItem('content_plan')
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved)
-        setContentPlan(parsed)
-      } catch (e) {}
+      try { setContentPlan(JSON.parse(saved)) } catch (e) {}
     }
   }, [])
 
@@ -88,7 +87,7 @@ export default function App() {
     localStorage.setItem('content_plan', JSON.stringify(contentPlan))
   }, [contentPlan])
 
-  // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ SEO =====
+  // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
   const getPageTitle = () => {
     if (topic.trim()) {
       return `Посты на тему "${topic}" — Генератор для Telegram`
@@ -670,17 +669,17 @@ export default function App() {
         <meta name="description" content={getMetaDescription()} />
         <meta name="keywords" content="генератор постов, Telegram, контент для телеграм, идеи постов, копирайтинг, ИИ, нейросеть" />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://your-domain.com" />
+        <link rel="canonical" href="https://post-generator-v2.vercel.app" />
         <meta property="og:title" content={getPageTitle()} />
         <meta property="og:description" content={getMetaDescription()} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://your-domain.com" />
-        <meta property="og:image" content="https://your-domain.com/og-image.png" />
+        <meta property="og:url" content="https://post-generator-v2.vercel.app" />
+        <meta property="og:image" content="https://post-generator-v2.vercel.app/og-image.png" />
         <meta property="og:site_name" content="Генератор постов для Telegram" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={getPageTitle()} />
         <meta name="twitter:description" content={getMetaDescription()} />
-        <meta name="twitter:image" content="https://your-domain.com/og-image.png" />
+        <meta name="twitter:image" content="https://post-generator-v2.vercel.app/og-image.png" />
         <html lang="ru" />
       </Helmet>
 
@@ -699,7 +698,6 @@ export default function App() {
 
         <div className="app-grid">
           <aside className="sidebar-left">
-            {/* Популярные темы */}
             <div className="sidebar-card">
               <h3>Популярные темы</h3>
               <ul>
@@ -711,7 +709,6 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Статистика */}
             <div className="sidebar-card">
               <h3>Статистика</h3>
               <p>Всего генераций: <strong>{posts.length}</strong></p>
@@ -720,7 +717,6 @@ export default function App() {
               <p>Общий просмотров: <strong>{totalViews}</strong></p>
             </div>
 
-            {/* Инструменты (кнопки в ряд) */}
             <div className="sidebar-card tools-card">
               <h3>Инструменты</h3>
               <div className="tools-group">
@@ -898,11 +894,15 @@ export default function App() {
         </div>
 
         <footer className="footer">
+          <Link to="/rekvizity" style={{ color: '#0088cc', textDecoration: 'none' }}>Реквизиты</Link>
+          <span style={{ margin: '0 8px', color: 'rgba(255,255,255,0.2)' }}>|</span>
+          <Link to="/offer" style={{ color: '#0088cc', textDecoration: 'none' }}>Оферта</Link>
+          <br />
           Сделано с ❤️ для контент-менеджеров
         </footer>
       </div>
 
-      {/* ===== МОДАЛЬНОЕ ОКНО ИИ-АССИСТЕНТА ===== */}
+      {/* ===== МОДАЛЬНЫЕ ОКНА ===== */}
       {showIdeaAssistant && (
         <div className="modal-overlay" onClick={() => setShowIdeaAssistant(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -955,7 +955,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ===== МОДАЛЬНОЕ ОКНО КОНТЕНТ-ПЛАНА ===== */}
       {showContentPlan && (
         <div className="modal-overlay" onClick={() => setShowContentPlan(false)}>
           <div className="modal-content plan-modal" onClick={(e) => e.stopPropagation()}>
@@ -1024,5 +1023,17 @@ export default function App() {
         </div>
       )}
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/rekvizity" element={<Rekvizity />} />
+        <Route path="/offer" element={<Offer />} />
+      </Routes>
+    </Router>
   )
 }
