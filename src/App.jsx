@@ -70,7 +70,7 @@ function MainApp() {
   const [instructions, setInstructions] = useState('')
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(false)
-  const [postCount, setPostCount] = useState(5)
+  const [postCount, setPostCount] = useState(5) // теперь всегда 5
   const [copiedId, setCopiedId] = useState(null)
   const [error, setError] = useState(null)
   const [tipIndex, setTipIndex] = useState(0)
@@ -527,9 +527,8 @@ function MainApp() {
       } catch (e) {}
     }
 
-    // Если пользователь не подписан (мы не храним статус подписки, пока только лимит)
-    // Для теста считаем, что подписка недоступна, поэтому лимит действует
-    const isSubscribed = false // потом заменим на проверку
+    // Если пользователь не подписан (пока заглушка)
+    const isSubscribed = false
 
     if (!isSubscribed && count >= FREE_POSTS_PER_DAY) {
       setShowSubscriptionModal(true)
@@ -745,8 +744,7 @@ function MainApp() {
     setShowIdeaAssistant(false)
   }
 
-  const openSubscription = (plan) => {
-    setSelectedPlan(plan)
+  const openSubscription = () => {
     setShowSubscriptionModal(true)
   }
 
@@ -756,7 +754,6 @@ function MainApp() {
   }
 
   const handleSubscribe = () => {
-    // Пока заглушка — позже подключим ЮKassa
     alert('Оплата временно недоступна. Подписка будет доступна после интеграции с ЮKassa.')
     closeSubscription()
   }
@@ -861,7 +858,7 @@ function MainApp() {
               <button className="settings-btn" onClick={() => setShowSettings(!showSettings)} title="Настройки Telegram бота">
                 ⚙️
               </button>
-              <button className="subscribe-header-btn" onClick={() => setShowSubscriptionModal(true)} title="Подписка">
+              <button className="subscribe-header-btn" onClick={openSubscription} title="Подписка">
                 💎
               </button>
             </div>
@@ -914,11 +911,7 @@ function MainApp() {
               ))}
             </div>
 
-            <div className="count-toggle">
-              <span className="count-label">Количество постов:</span>
-              <button className={`toggle-btn ${postCount === 5 ? 'active' : ''}`} onClick={() => setPostCount(5)}>5</button>
-              <button className={`toggle-btn ${postCount === 10 ? 'active' : ''}`} onClick={() => setPostCount(10)}>10</button>
-            </div>
+            {/* ===== ПЕРЕКЛЮЧАТЕЛЬ 5/10 УДАЛЁН ===== */}
 
             {error && <div className="error">{error}</div>}
             {loading && (
@@ -1141,7 +1134,8 @@ function MainApp() {
             <div className="subscription-body">
               <div className="subscription-plans">
                 {PLANS.map((plan) => (
-                  <div key={plan.id} className="subscription-plan">
+                  <div key={plan.id} className={`subscription-plan ${plan.id === 'business' ? 'business' : ''}`}>
+                    {plan.id === 'business' && <div className="popular-badge">🔥 Популярный</div>}
                     <h4>{plan.name}</h4>
                     <div className="subscription-price">{plan.price} ₽ <span>/ {plan.period}</span></div>
                     <ul>
@@ -1150,8 +1144,8 @@ function MainApp() {
                       ))}
                     </ul>
                     <button
-                      className="btn subscription-buy"
-                      onClick={() => handleSubscribe()}
+                      className={`subscription-buy ${plan.id === 'business' ? 'gold' : ''}`}
+                      onClick={handleSubscribe}
                     >
                       Оформить
                     </button>

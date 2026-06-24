@@ -562,44 +562,7 @@ body {
   box-shadow: 0 2px 12px rgba(108, 99, 255, 0.25);
 }
 
-.count-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.count-label {
-  color: var(--text-secondary);
-  opacity: 0.6;
-  font-size: 0.9rem;
-  margin-right: 4px;
-}
-
-.toggle-btn {
-  padding: 6px 18px;
-  border: 1px solid var(--border-input);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s, border-color 0.3s, transform 0.2s;
-}
-
-.toggle-btn:hover {
-  background: var(--bg-card);
-  transform: translateY(-1px);
-}
-
-.toggle-btn.active {
-  background: #0088cc;
-  border-color: #0088cc;
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(0, 136, 204, 0.25);
-}
+/* ===== ПЕРЕКЛЮЧАТЕЛЬ 5/10 УДАЛЁН ===== */
 
 /* ===== ОШИБКИ И ЗАГРУЗКА ===== */
 .error {
@@ -1298,7 +1261,7 @@ body {
 
 /* ===== МОДАЛЬНОЕ ОКНО ПОДПИСКИ ===== */
 .subscription-modal .modal-content {
-  max-width: 700px;
+  max-width: 750px;
 }
 
 .subscription-body {
@@ -1307,40 +1270,68 @@ body {
 
 .subscription-plans {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   justify-content: center;
+  align-items: stretch;
   flex-wrap: wrap;
 }
 
 .subscription-plan {
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  padding: 28px 24px;
   flex: 1;
-  min-width: 200px;
-  max-width: 280px;
-  text-align: center;
-  transition: transform 0.2s, border-color 0.2s;
+  min-width: 220px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  position: relative;
 }
 
 .subscription-plan:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   border-color: #0088cc;
+  box-shadow: 0 12px 40px rgba(0, 136, 204, 0.15);
+}
+
+.subscription-plan.business {
+  border-color: rgba(247, 151, 30, 0.3);
+  background: linear-gradient(145deg, var(--bg-card), rgba(247, 151, 30, 0.05));
+}
+
+.subscription-plan.business:hover {
+  border-color: #f7971e;
+  box-shadow: 0 12px 40px rgba(247, 151, 30, 0.15);
+}
+
+.subscription-plan .popular-badge {
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .subscription-plan h4 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   color: var(--text-primary);
 }
 
 .subscription-price {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #ffd200;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .subscription-price span {
@@ -1352,34 +1343,72 @@ body {
 .subscription-plan ul {
   list-style: none;
   padding: 0;
-  text-align: left;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
+  margin: 0 0 20px 0;
+  flex: 1;
 }
 
 .subscription-plan ul li {
-  padding: 4px 0;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subscription-plan ul li::before {
+  content: '✅';
+  font-size: 0.8rem;
 }
 
 .subscription-buy {
   width: 100%;
-  background: linear-gradient(135deg, #f7971e, #ffd200) !important;
-  color: #1a1a2e !important;
-  font-weight: 700 !important;
-  box-shadow: 0 4px 16px rgba(247, 151, 30, 0.3) !important;
+  padding: 14px 0;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0088cc, #00b4d8);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 16px rgba(0, 136, 204, 0.3);
+  margin-top: auto;
 }
 
 .subscription-buy:hover {
-  box-shadow: 0 8px 24px rgba(247, 151, 30, 0.5) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 136, 204, 0.5);
+}
+
+.subscription-buy.gold {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  box-shadow: 0 4px 16px rgba(247, 151, 30, 0.3);
+}
+
+.subscription-buy.gold:hover {
+  box-shadow: 0 8px 28px rgba(247, 151, 30, 0.5);
 }
 
 .subscription-note {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  opacity: 0.5;
+  opacity: 0.4;
   text-align: center;
   margin-top: 20px;
+}
+
+/* ===== АДАПТИВНОСТЬ ПОДПИСКИ ===== */
+@media (max-width: 600px) {
+  .subscription-plans {
+    flex-direction: column;
+    align-items: center;
+  }
+  .subscription-plan {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 
 /* ===== ФУТЕР ===== */
@@ -1439,12 +1468,6 @@ body {
   .card-title {
     font-size: 1.1rem;
   }
-  .count-toggle {
-    justify-content: center;
-  }
-  .style-toggle {
-    justify-content: center;
-  }
   .tools-group {
     gap: 6px;
   }
@@ -1488,14 +1511,6 @@ body {
   }
   .plan-actions {
     flex-direction: column;
-  }
-  .subscription-plans {
-    flex-direction: column;
-    align-items: center;
-  }
-  .subscription-plan {
-    max-width: 100%;
-    width: 100%;
   }
 }
 
