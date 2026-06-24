@@ -11,6 +11,9 @@ const MIN_POST_LENGTH = 800
 const MAX_POST_LENGTH = 1600
 const FORBIDDEN_TOPICS = ['снег эскимосу', 'снег эскимосам', 'продать снег']
 
+// ===== ЛИМИТ БЕСПЛАТНЫХ ПОСТОВ =====
+const FREE_POSTS_PER_DAY = 5
+
 const POPULAR_TOPICS = ['Маркетинг', 'Психология', 'Бизнес', 'Дизайн', 'Фитнес', 'Кулинария', 'Образование']
 
 const DAILY_TIPS = [
@@ -31,6 +34,35 @@ const STYLES = {
   краткий: { label: 'Краткий', prompt: 'Пост должен быть максимально сжатым...' },
   поэтичный: { label: 'Поэтичный', prompt: 'Пост должен быть поэтичным, образным...' },
 }
+
+// ===== ТАРИФЫ ДЛЯ ПОДПИСКИ =====
+const PLANS = [
+  {
+    id: 'pro',
+    name: 'PRO',
+    price: '499',
+    period: 'месяц',
+    features: [
+      '♾️ Безлимитная генерация постов',
+      '🚀 Приоритетная очередь',
+      '📅 Контент-план на месяц',
+      '📊 Расширенная аналитика',
+      '🖼️ Изображения к постам'
+    ]
+  },
+  {
+    id: 'business',
+    name: 'BUSINESS',
+    price: '999',
+    period: 'месяц',
+    features: [
+      'Всё из PRO',
+      '👥 Доступ для 5 пользователей',
+      '📈 Экспорт в Google Docs',
+      '🤖 ИИ-ассистент для идей'
+    ]
+  }
+]
 
 function MainApp() {
   // ===== СОСТОЯНИЯ =====
@@ -58,6 +90,33 @@ function MainApp() {
   const [statsLoading, setStatsLoading] = useState(false)
   const [statsError, setStatsError] = useState(null)
   const [totalViews, setTotalViews] = useState(0)
+
+  // ===== ПОДПИСКА И ЛИМИТЫ =====
+  const [generationCount, setGenerationCount] = useState(() => {
+    const today = new Date().toDateString()
+    const saved = localStorage.getItem('generation_data')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        if (parsed.date === today) {
+          return parsed.count
+        }
+      } catch (e) {}
+    }
+    return 0
+  })
+
+  // Сохраняем счётчик в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem('generation_data', JSON.stringify({
+      date: new Date().toDateString(),
+      count: generationCount
+    }))
+  }, [generationCount])
+
+  // ===== МОДАЛЬНОЕ ОКНО ПОДПИСКИ =====
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
 
   // ===== ИИ-АССИСТЕНТ =====
   const [showIdeaAssistant, setShowIdeaAssistant] = useState(false)
@@ -447,11 +506,33 @@ function MainApp() {
     return null
   }
 
-  // ===== ГЕНЕРАЦИЯ ПОСТОВ =====
+  // ===== ГЕНЕРАЦИЯ ПОСТОВ (с проверкой лимита) =====
   const handleGenerate = async () => {
     if (!topic.trim()) return
     if (!OPENROUTER_API_KEY) {
       setError('API-ключ не найден.')
+      return
+    }
+
+    // ===== ПРОВЕРКА ЛИМИТА =====
+    const today = new Date().toDateString()
+    const savedData = localStorage.getItem('generation_data')
+    let count = 0
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData)
+        if (parsed.date === today) {
+          count = parsed.count
+        }
+      } catch (e) {}
+    }
+
+    // Если пользователь не подписан (мы не храним статус подписки, пока только лимит)
+    // Для теста считаем, что подписка недоступна, поэтому лимит действует
+    const isSubscribed = false // потом заменим на проверку
+
+    if (!isSubscribed && count >= FREE_POSTS_PER_DAY) {
+      setShowSubscriptionModal(true)
       return
     }
 
@@ -480,6 +561,11 @@ function MainApp() {
 
       setPosts(finalPosts)
 
+      // ===== УВЕЛИЧИВАЕМ СЧЁТЧИК =====
+      const newCount = count + 1
+      setGenerationCount(newCount)
+
+      // Сохраняем в историю
       if (finalPosts.length > 0 && finalPosts[0]?.title !== 'Пост #1') {
         const historyEntry = {
           id: Date.now(),
@@ -659,6 +745,22 @@ function MainApp() {
     setShowIdeaAssistant(false)
   }
 
+  const openSubscription = (plan) => {
+    setSelectedPlan(plan)
+    setShowSubscriptionModal(true)
+  }
+
+  const closeSubscription = () => {
+    setShowSubscriptionModal(false)
+    setSelectedPlan(null)
+  }
+
+  const handleSubscribe = () => {
+    // Пока заглушка — позже подключим ЮKassa
+    alert('Оплата временно недоступна. Подписка будет доступна после интеграции с ЮKassa.')
+    closeSubscription()
+  }
+
   const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -715,6 +817,7 @@ function MainApp() {
               <p>История: <strong>{history.length}</strong> записей</p>
               <p>Отправлено постов: <strong>{sentPosts.length}</strong></p>
               <p>Общий просмотров: <strong>{totalViews}</strong></p>
+              <p>Бесплатных постов сегодня: <strong>{generationCount} / {FREE_POSTS_PER_DAY}</strong></p>
             </div>
 
             <div className="sidebar-card tools-card">
@@ -757,6 +860,9 @@ function MainApp() {
               </button>
               <button className="settings-btn" onClick={() => setShowSettings(!showSettings)} title="Настройки Telegram бота">
                 ⚙️
+              </button>
+              <button className="subscribe-header-btn" onClick={() => setShowSubscriptionModal(true)} title="Подписка">
+                💎
               </button>
             </div>
 
@@ -902,7 +1008,7 @@ function MainApp() {
         </footer>
       </div>
 
-      {/* ===== МОДАЛЬНЫЕ ОКНА ===== */}
+      {/* ===== МОДАЛЬНОЕ ОКНО ИИ-АССИСТЕНТА ===== */}
       {showIdeaAssistant && (
         <div className="modal-overlay" onClick={() => setShowIdeaAssistant(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -955,6 +1061,7 @@ function MainApp() {
         </div>
       )}
 
+      {/* ===== МОДАЛЬНОЕ ОКНО КОНТЕНТ-ПЛАНА ===== */}
       {showContentPlan && (
         <div className="modal-overlay" onClick={() => setShowContentPlan(false)}>
           <div className="modal-content plan-modal" onClick={(e) => e.stopPropagation()}>
@@ -1018,6 +1125,42 @@ function MainApp() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== МОДАЛЬНОЕ ОКНО ПОДПИСКИ ===== */}
+      {showSubscriptionModal && (
+        <div className="modal-overlay" onClick={closeSubscription}>
+          <div className="modal-content subscription-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>💎 Выберите тариф</h3>
+              <button className="modal-close" onClick={closeSubscription}>✕</button>
+            </div>
+            <div className="subscription-body">
+              <div className="subscription-plans">
+                {PLANS.map((plan) => (
+                  <div key={plan.id} className="subscription-plan">
+                    <h4>{plan.name}</h4>
+                    <div className="subscription-price">{plan.price} ₽ <span>/ {plan.period}</span></div>
+                    <ul>
+                      {plan.features.map((f, i) => (
+                        <li key={i}>{f}</li>
+                      ))}
+                    </ul>
+                    <button
+                      className="btn subscription-buy"
+                      onClick={() => handleSubscribe()}
+                    >
+                      Оформить
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="subscription-note">
+                🔒 Безопасная оплата через ЮKassa. Деньги не списываются до подтверждения.
+              </p>
             </div>
           </div>
         </div>

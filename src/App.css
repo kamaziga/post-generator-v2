@@ -186,70 +186,54 @@ body {
   margin: 4px 0;
 }
 
-/* ===== ИНСТРУМЕНТЫ (ГРУППА КНОПОК) ===== */
-.tools-card {
-  padding: 16px 14px !important;
-}
-
-.tools-group {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.tool-btn {
-  flex: 1;
-  min-width: 60px;
-  padding: 8px 4px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+/* ===== КНОПКА СТАТИСТИКИ ===== */
+.stats-btn {
+  width: 100%;
+  padding: 10px 0;
+  background: linear-gradient(135deg, #6c63ff, #00b4d8);
+  border: none;
   border-radius: 10px;
-  color: var(--text-primary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.15s, border-color 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  line-height: 1.2;
-  position: relative;
-}
-
-.tool-btn:hover:not(:disabled) {
-  background: var(--bg-card-hover);
-  transform: translateY(-2px);
-  border-color: #0088cc;
-}
-
-.tool-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.tool-btn .badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #0088cc;
   color: #fff;
-  font-size: 0.6rem;
-  font-weight: 700;
-  padding: 0 5px;
-  border-radius: 8px;
-  line-height: 1.4;
-  min-width: 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.3);
+}
+
+.stats-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stats-error {
+  font-size: 0.8rem;
+  color: #ff6b6b;
+  margin-top: 6px;
   text-align: center;
 }
 
-.tool-label {
-  font-size: 0.6rem;
-  color: var(--text-secondary);
-  opacity: 0.7;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+/* ===== КНОПКА КОНТЕНТ-ПЛАНА ===== */
+.plan-btn {
+  width: 100%;
+  padding: 10px 0;
+  background: linear-gradient(135deg, #00b4d8, #6c63ff);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.plan-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 180, 216, 0.4);
 }
 
 /* ===== ОСНОВНАЯ ОБЛАСТЬ ===== */
@@ -355,6 +339,26 @@ body {
 
 .theme-toggle {
   margin-left: auto;
+}
+
+/* ===== КНОПКА ПОДПИСКИ В ШАПКЕ ===== */
+.subscribe-header-btn {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  border: none;
+  border-radius: 12px;
+  color: #1a1a2e;
+  font-size: 1.4rem;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-left: 4px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.subscribe-header-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(247, 151, 30, 0.4);
 }
 
 /* ===== НАСТРОЙКИ ===== */
@@ -1292,6 +1296,92 @@ body {
   background: var(--bg-card-hover);
 }
 
+/* ===== МОДАЛЬНОЕ ОКНО ПОДПИСКИ ===== */
+.subscription-modal .modal-content {
+  max-width: 700px;
+}
+
+.subscription-body {
+  padding: 24px;
+}
+
+.subscription-plans {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.subscription-plan {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+  text-align: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.subscription-plan:hover {
+  transform: translateY(-4px);
+  border-color: #0088cc;
+}
+
+.subscription-plan h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.subscription-price {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffd200;
+  margin-bottom: 12px;
+}
+
+.subscription-price span {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.subscription-plan ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.subscription-plan ul li {
+  padding: 4px 0;
+}
+
+.subscription-buy {
+  width: 100%;
+  background: linear-gradient(135deg, #f7971e, #ffd200) !important;
+  color: #1a1a2e !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 16px rgba(247, 151, 30, 0.3) !important;
+}
+
+.subscription-buy:hover {
+  box-shadow: 0 8px 24px rgba(247, 151, 30, 0.5) !important;
+}
+
+.subscription-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 20px;
+}
+
 /* ===== ФУТЕР ===== */
 .footer {
   margin-top: auto;
@@ -1398,6 +1488,14 @@ body {
   }
   .plan-actions {
     flex-direction: column;
+  }
+  .subscription-plans {
+    flex-direction: column;
+    align-items: center;
+  }
+  .subscription-plan {
+    max-width: 100%;
+    width: 100%;
   }
 }
 
