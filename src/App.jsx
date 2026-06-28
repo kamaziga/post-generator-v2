@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import Rekvizity from './Rekvizity'
 import Offer from './Offer'
+import PaymentSuccess from './PaymentSuccess'
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || ''
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
@@ -70,7 +71,7 @@ function MainApp() {
   const [instructions, setInstructions] = useState('')
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(false)
-  const [postCount, setPostCount] = useState(5) // теперь всегда 5
+  const [postCount, setPostCount] = useState(5)
   const [copiedId, setCopiedId] = useState(null)
   const [error, setError] = useState(null)
   const [tipIndex, setTipIndex] = useState(0)
@@ -106,7 +107,6 @@ function MainApp() {
     return 0
   })
 
-  // Сохраняем счётчик в localStorage при изменении
   useEffect(() => {
     localStorage.setItem('generation_data', JSON.stringify({
       date: new Date().toDateString(),
@@ -506,7 +506,7 @@ function MainApp() {
     return null
   }
 
-  // ===== ГЕНЕРАЦИЯ ПОСТОВ (с проверкой лимита) =====
+  // ===== ГЕНЕРАЦИЯ ПОСТОВ =====
   const handleGenerate = async () => {
     if (!topic.trim()) return
     if (!OPENROUTER_API_KEY) {
@@ -514,7 +514,7 @@ function MainApp() {
       return
     }
 
-    // ===== ПРОВЕРКА ЛИМИТА =====
+    // Проверка лимита
     const today = new Date().toDateString()
     const savedData = localStorage.getItem('generation_data')
     let count = 0
@@ -527,7 +527,7 @@ function MainApp() {
       } catch (e) {}
     }
 
-    // Если пользователь не подписан (пока заглушка)
+    // Пока все пользователи считаются бесплатными
     const isSubscribed = false
 
     if (!isSubscribed && count >= FREE_POSTS_PER_DAY) {
@@ -560,11 +560,9 @@ function MainApp() {
 
       setPosts(finalPosts)
 
-      // ===== УВЕЛИЧИВАЕМ СЧЁТЧИК =====
       const newCount = count + 1
       setGenerationCount(newCount)
 
-      // Сохраняем в историю
       if (finalPosts.length > 0 && finalPosts[0]?.title !== 'Пост #1') {
         const historyEntry = {
           id: Date.now(),
@@ -584,7 +582,7 @@ function MainApp() {
     }
   }
 
-  // ===== КОНТЕНТ-ПЛАН: ФУНКЦИИ =====
+  // ===== КОНТЕНТ-ПЛАН =====
   const getDaysInMonth = (month, year) => {
     return new Date(year, month + 1, 0).getDate()
   }
@@ -744,6 +742,29 @@ function MainApp() {
     setShowIdeaAssistant(false)
   }
 
+  // ===== ОПЛАТА (ЮKassa) =====
+  const handleSubscribe = async (plan) => {
+    const amount = plan.price;
+    const description = `Подписка ${plan.name}`;
+
+    try {
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, description })
+      });
+      const data = await response.json();
+      if (data.confirmation_url) {
+        window.location.href = data.confirmation_url;
+      } else {
+        alert('Ошибка при создании платежа: ' + (data.error || 'неизвестная ошибка'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Не удалось подключиться к платежной системе');
+    }
+  };
+
   const openSubscription = () => {
     setShowSubscriptionModal(true)
   }
@@ -751,11 +772,6 @@ function MainApp() {
   const closeSubscription = () => {
     setShowSubscriptionModal(false)
     setSelectedPlan(null)
-  }
-
-  const handleSubscribe = () => {
-    alert('Оплата временно недоступна. Подписка будет доступна после интеграции с ЮKassa.')
-    closeSubscription()
   }
 
   const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -911,8 +927,6 @@ function MainApp() {
               ))}
             </div>
 
-            {/* ===== ПЕРЕКЛЮЧАТЕЛЬ 5/10 УДАЛЁН ===== */}
-
             {error && <div className="error">{error}</div>}
             {loading && (
               <div className="loading">
@@ -1001,7 +1015,7 @@ function MainApp() {
         </footer>
       </div>
 
-      {/* ===== МОДАЛЬНОЕ ОКНО ИИ-АССИСТЕНТА ===== */}
+      {/* ===== МОДАЛЬНЫЕ ОКНА ===== */}
       {showIdeaAssistant && (
         <div className="modal-overlay" onClick={() => setShowIdeaAssistant(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -1054,7 +1068,6 @@ function MainApp() {
         </div>
       )}
 
-      {/* ===== МОДАЛЬНОЕ ОКНО КОНТЕНТ-ПЛАНА ===== */}
       {showContentPlan && (
         <div className="modal-overlay" onClick={() => setShowContentPlan(false)}>
           <div className="modal-content plan-modal" onClick={(e) => e.stopPropagation()}>
@@ -1145,7 +1158,7 @@ function MainApp() {
                     </ul>
                     <button
                       className={`subscription-buy ${plan.id === 'business' ? 'gold' : ''}`}
-                      onClick={handleSubscribe}
+                      onClick={() => handleSubscribe(plan)}
                     >
                       Оформить
                     </button>
@@ -1170,6 +1183,7 @@ export default function App() {
         <Route path="/" element={<MainApp />} />
         <Route path="/rekvizity" element={<Rekvizity />} />
         <Route path="/offer" element={<Offer />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </Router>
   )
