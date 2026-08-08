@@ -6,7 +6,7 @@ import Offer from './Offer'
 import PaymentSuccess from './PaymentSuccess'
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || ''
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
+const OPENROUTER_API_URL = 'https://post-generator-proxy.onrender.com/api/chat'
 
 const MIN_POST_LENGTH = 800
 const MAX_POST_LENGTH = 1600
@@ -1188,3 +1188,4 @@ export default function App() {
     </Router>
   )
 }
+

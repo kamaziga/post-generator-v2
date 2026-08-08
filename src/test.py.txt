@@ -1,0 +1,29 @@
+import requests
+import json
+
+url = "https://lead-finder-v2.onrender.com/api/search"
+
+payload = {
+    "url": "https://catalog.api.2gis.ru/3.0/markers/clustered?key=c7f1a769-c8a5-4636-b14d-d8c987808a12&map_width=982&map_height=904&locale=ru_RU&q=%D0%9D%D0%B5%D1%84%D1%82%D0%B5%D0%BA%D0%B0%D0%BC%D1%81%D0%BA+%D0%9F%D0%B0%D1%80%D0%B8%D0%BA%D0%BC%D0%B0%D1%85%D0%B5%D1%80%D1%81%D0%BA%D0%B8%D0%B5&allow_deleted=true&type=adm_div.city,adm_div.district,adm_div.district_area,adm_div.division,adm_div.living_area,adm_div.place,adm_div.region,adm_div.settlement,attraction,branch,building,crossroad,foreign_city,gate,parking,road,route,station,street,coordinates,kilometer_road_sign&search_device_type=desktop&search_user_hash=7089055466745378612&is_viewport_change=true&viewpoint1=54.065311,56.162338&viewpoint2=54.381072,55.999962&marker_ids=70000001100144713&fields=items.ads,items.name,items.stop_factors,items.reviews,items.schedule,items.schedule_special,items.context,items.name_ex,items.timezone_offset,items.flags,items.floor_id,items.has_exchange,items.temporary_unavailable_atm_services,items.friends,search_attributes,items.has_ads_model&stat[sid]=6521a98e-ae01-44ce-b21a-0cb74f9ddcb6&stat[user]=47f8cbab-bd05-4397-8e4c-40712370634e&shv=2026-07-16-17&r=3152339917"
+}
+
+try:
+    print("Отправляем запрос...")
+    response = requests.post(url, json=payload, timeout=30)
+    print(f"Статус: {response.status_code}")
+    
+    data = response.json()
+    print(f"\nВсего: {data.get('total', 0)}")
+    print(f"Без сайта: {data.get('filtered', 0)}")
+    
+    leads = data.get('leads', [])
+    if leads:
+        print(f"\n--- Первая компания ---")
+        first = leads[0]
+        for key, value in first.items():
+            print(f"{key}: {value}")
+    else:
+        print("Компаний нет")
+        
+except Exception as e:
+    print(f"Ошибка: {e}")
